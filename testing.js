@@ -59,8 +59,6 @@ console.assert(areEqual(e, [1, 0, 1]));
 let n = new Uint8Array(publickey.readString().bytes());
 
 function encode(bytes) {
-  console.log("encode", bytes);
-  //if (bytes[0] == 0) { bytes.shift(1); }
   return btoa(String.fromCharCode.apply(null, bytes));
 }
 
@@ -84,7 +82,6 @@ async function v(signature) {
       "verify",
     ],
   );
-  console.log(key);
   // https://github.com/openssh/openssh-portable/blob/d575cf44895104e0fcb0629920fb645207218129/PROTOCOL.sshsig
   // MAGIC_PREAMBLE
   let data = Array.prototype.map.call("SSHSIG", (x) => x.charCodeAt(0));
@@ -110,19 +107,16 @@ async function v(signature) {
       ),
     ),
   );
-  //console.log(digest);
-  // H(message)
   data.push(...[0, 0, 0, digest.length]);
   data.push(...digest);
   data = new Uint8Array(data);
-  console.log(data);
   let result = await crypto.subtle.verify(
     "RSASSA-PKCS1-v1_5",
     key,
     signature.signature.raw_signature,
     data,
   );
-  console.log("result => " + result);
+  return result;
 }
 
 //let raw_signature =
