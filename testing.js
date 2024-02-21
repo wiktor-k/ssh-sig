@@ -63,19 +63,14 @@ async function v(signature) {
   //https://nodejs.org/api/webcrypto.html#subtleimportkeyformat-keydata-algorithm-extractable-keyusages
   // for 'RSASSA-PKCS1-v1_5' only spki, pkcs8 and jwk are supported
   // https://stackoverflow.com/questions/46232571/webcrypto-importing-rsa-public-key-with-modulus-and-exponent-using-crypto-subtl
-  let kk = 
-{
+    let key = await crypto.subtle.importKey("jwk", {
     kty: 'RSA',
     e: encode(signature.publickey.e),
     n: encode(signature.publickey.n),
-};
-  
-    console.log(kk);
-    let key = await crypto.subtle.importKey("jwk", kk, 
-    
-    {   //these are the algorithm options
+}, 
+    {
         name: "RSASSA-PKCS1-v1_5",
-        hash: {name: "SHA-512"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+        hash: {name: "SHA-512"},
     }, false, [
     "verify",
   ]);
