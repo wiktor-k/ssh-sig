@@ -52,9 +52,10 @@ let pk_algo = publickey.readString().toString();
 console.assert(pk_algo == 'ssh-rsa')
 let e = new Uint8Array(publickey.readString().bytes());
 console.assert(areEqual(e, [1, 0, 1]));
-let n = publickey.readString().bytes();
+let n = new Uint8Array(publickey.readString().bytes());
 
-function encode(bytes) {
+function encode(bytes) {console.log('encode', bytes);
+  //if (bytes[0] == 0) { bytes.shift(1); }
   return btoa(String.fromCharCode.apply(null, bytes));
 }
 
@@ -62,11 +63,15 @@ async function v(signature) {
   //https://nodejs.org/api/webcrypto.html#subtleimportkeyformat-keydata-algorithm-extractable-keyusages
   // for 'RSASSA-PKCS1-v1_5' only spki, pkcs8 and jwk are supported
   // https://stackoverflow.com/questions/46232571/webcrypto-importing-rsa-public-key-with-modulus-and-exponent-using-crypto-subtl
-  let key = await crypto.subtle.importKey("jwk", {
+  let kk = 
+{
     kty: 'RSA',
     e: encode(signature.publickey.e),
     n: encode(signature.publickey.n),
-}, 
+};
+  
+    console.log(kk);
+    let key = await crypto.subtle.importKey("jwk", kk, 
     
     {   //these are the algorithm options
         name: "RSASSA-PKCS1-v1_5",
@@ -93,17 +98,17 @@ async function v(signature) {
     },
     new Uint8Array(Array.prototype.map.call("this is signed data\n", x => x.charCodeAt(0)))
   ));
-  console.log(digest);
+  //console.log(digest);
   // H(message)
   data.push(...[0, 0, 0, digest.length]);
   data.push(...digest);
-  
+  data = new Uint8Array(data);
   console.log(data);
   let result = await crypto.subtle.verify(
     "RSASSA-PKCS1-v1_5",
     key,
     signature.signature.raw_signature,
-    new Uint8Array(data),
+    data,
   );
   console.log('result => ' + result);
 }
