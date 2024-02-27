@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    tags:
+      - 'v*'
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-spelling:
+    name: Check spelling
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check spelling
+        uses: codespell-project/actions-codespell@master
+
+  formatting:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: denoland/setup-deno@v1
+      - uses: actions/checkout@v4
+      - name: Check formatting
+        run: deno fmt --check
+
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: denoland/setup-deno@v1
+      - uses: actions/checkout@v4
+      - name: Build and test
+        run: deno test --allow-read
+       
+  lints:
+    name: Lints
+    runs-on: ubuntu-latest
+    steps:
+      - uses: denoland/setup-deno@v1
+      - uses: actions/checkout@v4
+      - name: Check for lints
+        run: deno lint
