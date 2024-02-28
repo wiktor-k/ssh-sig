@@ -40,14 +40,22 @@ async function v(signature: Sig, ddata: Uint8Array) {
   );
 }
 
-//let raw_signature =
-
-Deno.test(
-  { permissions: { read: true }, name: "sig test" },
-  async () => {
-    var b = dearmor(await Deno.readTextFile("signed-data.txt.sig"));
-    var sig = new DataView(b.buffer, b.byteOffset, b.length);
-    const sig2 = parse(sig);
-    assertEquals(await v(sig2, await Deno.readFile("signed-data.txt")), true);
-  },
-);
+for await (const entry of Deno.readDir("fixtures")) {
+  if (entry.name.endsWith(".sig")) {
+    Deno.test(
+      { permissions: { read: true }, name: entry.name },
+      async () => {
+        var b = dearmor(await Deno.readTextFile(`fixtures/${entry.name}`));
+        var sig = new DataView(b.buffer, b.byteOffset, b.length);
+        const sig2 = parse(sig);
+        assertEquals(
+          await v(
+            sig2,
+            await Deno.readFile(`fixtures/${entry.name.replace(/\.sig$/, "")}`),
+          ),
+          true,
+        );
+      },
+    );
+  }
+}
