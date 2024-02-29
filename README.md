@@ -10,6 +10,10 @@ All features are implemented using pure TypeScript and built-in
 (with the exception of ed25519 which, sadly, is
 [not yet supported there](https://wicg.github.io/webcrypto-secure-curves/).
 
+```typescript
+console.assert(false)
+```
+
 ## License
 
 This project is licensed under the
