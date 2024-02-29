@@ -1,7 +1,11 @@
 import { Sig } from "./sig.ts";
 import { convertAlgorithm, convertPublicKey } from "./formats.ts";
 
-export async function verify(subtle: SubtleCrypto, signature: Sig, signed_data: Uint8Array) {
+export async function verify(
+  subtle: SubtleCrypto,
+  signature: Sig,
+  signed_data: Uint8Array,
+) {
   //https://nodejs.org/api/webcrypto.html#subtleimportkeyformat-keydata-algorithm-extractable-keyusages
   // for 'RSASSA-PKCS1-v1_5' only spki, pkcs8 and jwk are supported
   // https://stackoverflow.com/questions/46232571/webcrypto-importing-rsa-public-key-with-modulus-and-exponent-using-crypto-subtl

@@ -36,7 +36,7 @@ jobs:
       - uses: denoland/setup-deno@v1
       - uses: actions/checkout@v4
       - name: Build and test
-        run: deno test --allow-read
+        run: deno test --allow-read --allow-write
        
   lints:
     name: Lints
