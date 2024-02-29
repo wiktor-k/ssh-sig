@@ -1,18 +1,15 @@
-import { assertEquals } from "https://deno.land/std@0.217.0/assert/mod.ts";
 import { Sig } from "./sig.ts";
 import { convertAlgorithm, convertPublicKey } from "./formats.ts";
-import { parse } from "./sig_parser.ts";
-import { dearmor } from "./armor.ts";
 
-async function v(signature: Sig, ddata: Uint8Array) {
+export async function verify(subtle: SubtleCrypto, signature: Sig, signed_data: Uint8Array) {
   //https://nodejs.org/api/webcrypto.html#subtleimportkeyformat-keydata-algorithm-extractable-keyusages
   // for 'RSASSA-PKCS1-v1_5' only spki, pkcs8 and jwk are supported
   // https://stackoverflow.com/questions/46232571/webcrypto-importing-rsa-public-key-with-modulus-and-exponent-using-crypto-subtl
   const { keyData, format } = convertPublicKey(signature.publickey);
   const algorithm = convertAlgorithm(signature.signature.sig_algo);
-  const key = await crypto.subtle.importKey(
-    format as unknown as any,
-    keyData as unknown as any,
+  const key = await subtle.importKey(
+    format as unknown as "raw",
+    keyData as unknown as BufferSource,
     algorithm,
     false,
     [
@@ -32,37 +29,17 @@ async function v(signature: Sig, ddata: Uint8Array) {
   data.push(...Array.prototype.map.call("sha512", (x) => x.charCodeAt(0)));
 
   const digest = new Uint8Array(
-    await crypto.subtle.digest(
+    await subtle.digest(
       algorithm.hash,
-      ddata,
+      signed_data,
     ),
   );
   data.push(...[0, 0, 0, digest.length]);
   data.push(...digest);
-  return await crypto.subtle.verify(
+  return await subtle.verify(
     algorithm.name,
     key,
     signature.signature.raw_signature,
     new Uint8Array(data as unknown as number[]),
   );
-}
-
-for await (const entry of Deno.readDir("fixtures")) {
-  if (entry.name.endsWith(".sig")) {
-    Deno.test(
-      { permissions: { read: true }, name: entry.name },
-      async () => {
-        const b = dearmor(await Deno.readTextFile(`fixtures/${entry.name}`));
-        const sig = new DataView(b.buffer, b.byteOffset, b.length);
-        const sig2 = parse(sig);
-        assertEquals(
-          await v(
-            sig2,
-            await Deno.readFile(`fixtures/${entry.name.replace(/\.sig$/, "")}`),
-          ),
-          true,
-        );
-      },
-    );
-  }
 }

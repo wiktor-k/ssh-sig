@@ -21,7 +21,8 @@ export function convertPublicKey(publickey: Pubkey): {
   format: "jwk";
   keyData: JsonWebKey;
 } | { format: "raw"; keyData: ArrayBuffer } {
-  if (publickey.pk_algo === "ssh-rsa") {
+  const pk_algo = publickey.pk_algo;
+  if (pk_algo === "ssh-rsa") {
     return {
       keyData: {
         kty: "RSA",
@@ -30,13 +31,13 @@ export function convertPublicKey(publickey: Pubkey): {
       },
       format: "jwk",
     };
-  } else if (publickey.pk_algo === "ssh-ed25519") {
+  } else if (pk_algo === "ssh-ed25519") {
     return {
       keyData: publickey.key.buffer,
       format: "raw",
     };
   } else {
-    throw new Error(`Unsupported algo: ${(publickey as any).pk_algo}`);
+    throw new Error(`Unsupported algo: ${pk_algo}`);
   }
 }
 
