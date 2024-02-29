@@ -1,3 +1,9 @@
+/**
+ * Removes armoring from text SSH signatures and decodes it to raw bytes.
+ *
+ * @param {string} text SSH signature in armored format.
+ * @returns {Uint8Array} Raw bytes of the signature.
+ */
 export function dearmor(text: string) {
   const lines = text.trim().split("\n");
   const first = lines.shift();
