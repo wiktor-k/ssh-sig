@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.217.0/assert/mod.ts";
 import { Sig } from "./sig.ts";
-import { convert } from "./key.ts";
+import { convertAlgorithm, convertPublicKey } from "./formats.ts";
 import { parse } from "./sig_parser.ts";
 import { dearmor } from "./armor.ts";
 
@@ -8,10 +8,17 @@ async function v(signature: Sig, ddata: Uint8Array) {
   //https://nodejs.org/api/webcrypto.html#subtleimportkeyformat-keydata-algorithm-extractable-keyusages
   // for 'RSASSA-PKCS1-v1_5' only spki, pkcs8 and jwk are supported
   // https://stackoverflow.com/questions/46232571/webcrypto-importing-rsa-public-key-with-modulus-and-exponent-using-crypto-subtl
-  const { keyData, format, algorithm } = convert(signature.publickey);
-  const key = await crypto.subtle.importKey(format, keyData, algorithm, false, [
-    "verify",
-  ]);
+  const { keyData, format } = convertPublicKey(signature.publickey);
+  const algorithm = convertAlgorithm(signature.signature.sig_algo);
+  const key = await crypto.subtle.importKey(
+    format as unknown as any,
+    keyData as unknown as any,
+    algorithm,
+    false,
+    [
+      "verify",
+    ],
+  );
   // https://github.com/openssh/openssh-portable/blob/d575cf44895104e0fcb0629920fb645207218129/PROTOCOL.sshsig
   // MAGIC_PREAMBLE
   const data = Array.prototype.map.call("SSHSIG", (x) => x.charCodeAt(0));

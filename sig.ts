@@ -1,4 +1,4 @@
-import { Pubkey } from "./key.ts";
+import { Pubkey } from "./formats.ts";
 
 export interface Sig {
   publickey: Pubkey;
