@@ -7,12 +7,12 @@ export class Reader {
     return this.view.getUint8(this.pos++);
   }
   readUint32() {
-    let v = this.view.getUint32(this.pos);
+    const v = this.view.getUint32(this.pos);
     this.pos += 4;
     return v;
   }
   readBytes(num: number) {
-    let dv = new DataView(
+    const dv = new DataView(
       this.view.buffer,
       this.pos + this.view.byteOffset,
       num,
@@ -21,7 +21,7 @@ export class Reader {
     return new Reader(dv);
   }
   readString() {
-    let len = this.readUint32();
+    const len = this.readUint32();
     return this.readBytes(len);
   }
   toString() {

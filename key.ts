@@ -5,7 +5,7 @@ export interface Pubkey {
 }
 
 function encode(bytes: Uint8Array) {
-  return btoa(String.fromCharCode.apply(null, bytes as unknown as any)).replace(
+  return btoa(String.fromCharCode.apply(null, bytes as unknown as number[])).replace(
     /\+/g,
     "-",
   )

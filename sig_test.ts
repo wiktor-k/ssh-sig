@@ -14,7 +14,7 @@ async function v(signature: Sig, ddata: Uint8Array) {
   ]);
   // https://github.com/openssh/openssh-portable/blob/d575cf44895104e0fcb0629920fb645207218129/PROTOCOL.sshsig
   // MAGIC_PREAMBLE
-  let data = Array.prototype.map.call("SSHSIG", (x) => x.charCodeAt(0));
+  const data = Array.prototype.map.call("SSHSIG", (x) => x.charCodeAt(0));
   // namespace
   data.push(...[0, 0, 0, 4]);
   data.push(...Array.prototype.map.call("file", (x) => x.charCodeAt(0)));
@@ -24,7 +24,7 @@ async function v(signature: Sig, ddata: Uint8Array) {
   data.push(...[0, 0, 0, 6]);
   data.push(...Array.prototype.map.call("sha512", (x) => x.charCodeAt(0)));
 
-  let digest = new Uint8Array(
+  const digest = new Uint8Array(
     await crypto.subtle.digest(
       algorithm.hash,
       ddata,
@@ -36,7 +36,7 @@ async function v(signature: Sig, ddata: Uint8Array) {
     algorithm.name,
     key,
     signature.signature.raw_signature,
-    new Uint8Array(data as unknown as any),
+    new Uint8Array(data as unknown as number[]),
   );
 }
 
@@ -45,8 +45,8 @@ for await (const entry of Deno.readDir("fixtures")) {
     Deno.test(
       { permissions: { read: true }, name: entry.name },
       async () => {
-        var b = dearmor(await Deno.readTextFile(`fixtures/${entry.name}`));
-        var sig = new DataView(b.buffer, b.byteOffset, b.length);
+        const b = dearmor(await Deno.readTextFile(`fixtures/${entry.name}`));
+        const sig = new DataView(b.buffer, b.byteOffset, b.length);
         const sig2 = parse(sig);
         assertEquals(
           await v(
