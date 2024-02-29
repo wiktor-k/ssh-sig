@@ -11,7 +11,7 @@ All features are implemented using pure TypeScript and built-in
 [not yet supported there](https://wicg.github.io/webcrypto-secure-curves/).
 
 ```typescript
-console.assert(false)
+console.assert(false);
 ```
 
 ## License
