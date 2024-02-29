@@ -1,5 +1,5 @@
 import { Sig } from "./sig.ts";
-import { convertAlgorithm, convertPublicKey } from "./formats.ts";
+import { convertAlgorithm, convertHash, convertPublicKey } from "./formats.ts";
 
 export async function verify(
   subtle: SubtleCrypto,
@@ -29,19 +29,19 @@ export async function verify(
   // reserved
   data.push(...[0, 0, 0, 0]);
   // hash_algorithm
-  data.push(...[0, 0, 0, 6]);
-  data.push(...Array.prototype.map.call("sha512", (x) => x.charCodeAt(0)));
-
+  const hash = signature.hash_algorithm;
+  data.push(...[0, 0, 0, hash.length]);
+  data.push(...Array.prototype.map.call(hash, (x) => x.charCodeAt(0)));
   const digest = new Uint8Array(
     await subtle.digest(
-      algorithm.hash,
+      convertHash(hash),
       signed_data,
     ),
   );
   data.push(...[0, 0, 0, digest.length]);
   data.push(...digest);
   return await subtle.verify(
-    algorithm.name,
+    algorithm,
     key,
     signature.signature.raw_signature,
     new Uint8Array(data as unknown as number[]),

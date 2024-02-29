@@ -5,6 +5,10 @@ export type Pubkey = {
 } | {
   pk_algo: "ssh-ed25519";
   key: Uint8Array;
+} | {
+  pk_algo: "ecdsa-sha2-nistp256";
+  curve: string;
+  point: Uint8Array;
 };
 
 function encode(bytes: Uint8Array) {
@@ -36,6 +40,20 @@ export function convertPublicKey(publickey: Pubkey): {
       keyData: publickey.key.buffer,
       format: "raw",
     };
+  } else if (pk_algo === "ecdsa-sha2-nistp256") {
+    if (publickey.point[0] !== 0x04) {
+      throw new Error("Only uncompressed (0x04) format is supported");
+    }
+
+    return {
+      keyData: {
+        kty: "EC",
+        crv: "P-256",
+        x: encode(publickey.point.slice(1, 33)),
+        y: encode(publickey.point.slice(33)),
+      },
+      format: "jwk",
+    };
   } else {
     throw new Error(`Unsupported algo: ${pk_algo}`);
   }
@@ -52,7 +70,23 @@ export function convertAlgorithm(sig_algo: string) {
       name: "Ed25519",
       hash: { name: "SHA-512" },
     };
+  } else if (sig_algo === "ecdsa-sha2-nistp256") {
+    return {
+      name: "ECDSA",
+      namedCurve: "P-256",
+      hash: { name: "SHA-256" },
+    };
   } else {
     throw new Error(`Unsupported algo: ${sig_algo}`);
+  }
+}
+
+export function convertHash(hashName: string): string {
+  if (hashName === "sha256") {
+    return "SHA-256";
+  } else if (hashName === "sha512") {
+    return "SHA-512";
+  } else {
+    throw new Error(`Unknown hash: ${hashName}`);
   }
 }
