@@ -1,14 +1,12 @@
 {
-  "name": "ssh-browser-test",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "ssh-sig",
+  "version": "0.1.0",
+  "description": "Provides SSH signature parser and verifier for SSH file signatures.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "deno test --allow-read"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Wiktor Kwapisiewicz <wiktor@metacode.biz>",
+  "license": "Apache-2.0",
   "dependencies": {
-    "sshpk-browser": "^1.17.0"
   }
 }
