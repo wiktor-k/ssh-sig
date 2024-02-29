@@ -1,0 +1,9 @@
+{
+  "lock": false,
+  "exclude": ["dist"],
+  "tasks": {
+    "lint": "deno lint && deno fmt --check",
+    "fmt": "deno fmt",
+    "test": "deno test --doc --allow-read=./ --parallel",
+  }
+}
