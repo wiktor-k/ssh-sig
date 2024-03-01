@@ -14,6 +14,18 @@ are
 this package allows supplying custom `SubtleCrypto` implementation, such as
 [`webcrypto-ed25519`](https://github.com/jacobbubu/webcrypto-ed25519).
 
+## Supported algorithms
+
+The following algorithms are supported at this time:
+
+- RSA
+- ed25519
+- NIST P-256
+
+If you would like to see a different signing algorithm supported please
+[file an issue](https://github.com/wiktor-k/ssh-sig/issues/new) attaching both
+the SSH signature and the file that was signed.
+
 ## Example
 
 The following example verifies an `ed25519` signature against provided data:
@@ -29,7 +41,7 @@ dnvxJddvs2Z/x5En43hQIB
 -----END SSH SIGNATURE-----`;
 
 const valid = await verify(
-  crypto.subtle, // allow inserting SubtleCrypto
+  crypto.subtle, // bring your own SubtleCrypto
   signature, // detached signature
   "this is signed data\n", // signed data
 );
