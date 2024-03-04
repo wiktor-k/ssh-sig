@@ -1,3 +1,5 @@
+import { Reader } from './reader.ts';
+
 export type Pubkey = {
   pk_algo: "ssh-rsa";
   e: Uint8Array;
@@ -10,6 +12,32 @@ export type Pubkey = {
   curve: string;
   point: Uint8Array;
 };
+
+export function parsePubkey(pk_algo: string, publickey: Reader): Pubkey {
+  let pubkey: Pubkey;
+  if (pk_algo === "ssh-rsa") {
+    pubkey = {
+      pk_algo,
+      e: new Uint8Array(publickey.readString().bytes()),
+      n: new Uint8Array(publickey.readString().bytes()),
+    };
+  } else if (pk_algo === "ssh-ed25519") {
+    pubkey = {
+      pk_algo,
+      key: new Uint8Array(publickey.readString().bytes()),
+    };
+  } else if (pk_algo === "ecdsa-sha2-nistp256") {
+    const curve = publickey.readString().toString();
+    pubkey = {
+      pk_algo,
+      curve,
+      point: new Uint8Array(publickey.readString().bytes()),
+    };
+  } else {
+    throw new Error(`Unsupported pk_algo: ${pk_algo}`);
+  }
+  return pubkey;
+}
 
 function encode(bytes: Uint8Array) {
   return btoa(String.fromCharCode.apply(null, bytes as unknown as number[]))
