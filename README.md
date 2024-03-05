@@ -40,11 +40,12 @@ If you would like to see a different signing algorithm supported please
 [file an issue](https://github.com/wiktor-k/ssh-sig/issues/new) attaching both
 the SSH signature and the file that was signed.
 
-## Example
+## Examples
 
 The following example verifies an `ed25519` signature against provided data:
 
 ```typescript
+import { assertEquals } from "https://deno.land/std@0.217.0/assert/mod.ts";
 import { verify } from "./index.ts";
 
 const signature = `-----BEGIN SSH SIGNATURE-----
@@ -60,7 +61,36 @@ const valid = await verify(
   "this is signed data\n", // signed data
 );
 
-console.assert(valid, "signature is valid");
+assertEquals(valid, true, "signature is valid");
+```
+
+Signatures can also be parsed before verification. Since signatures contain
+public keys it's also possible to export the public key in the SSH format:
+
+```typescript
+import { assertEquals } from "https://deno.land/std@0.217.0/assert/mod.ts";
+import { verify } from "./index.ts";
+import { parse } from "./sig_parser.ts";
+
+const signature = parse(`-----BEGIN SSH SIGNATURE-----
+U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgscJcEliU8+Su3ZZjI/dJmgzHje
+UMEHlAAuMTvrYRCVwAAAAEZmlsZQAAAAAAAAAGc2hhNTEyAAAAUwAAAAtzc2gtZWQyNTUx
+OQAAAECQkGDrATymoR1tunbphepkXiLGAMcF+Eca1EL3KpidzNYSTJ/smLYVw2elXq3K/l
+dnvxJddvs2Z/x5En43hQIB
+-----END SSH SIGNATURE-----`);
+
+const valid = await verify(
+  crypto.subtle, // bring your own SubtleCrypto
+  signature, // detached signature
+  "this is signed data\n", // signed data
+);
+
+assertEquals(valid, true, "signature is valid");
+assertEquals(
+  `${signature.publickey}`,
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILHCXBJYlPPkrt2WYyP3SZoMx43lDBB5QALjE762EQlc",
+  "signing key",
+);
 ```
 
 ## License

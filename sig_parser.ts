@@ -1,8 +1,16 @@
 import { Sig } from "./sig.ts";
 import { Reader } from "./reader.ts";
 import { parsePubkey } from "./formats.ts";
+import { dearmor } from "./armor.ts";
 
-export function parse(view: DataView): Sig {
+export function parse(signature: DataView | string): Sig {
+  let view;
+  if (typeof signature === "string") {
+    const bytes = dearmor(signature);
+    view = new DataView(bytes.buffer, bytes.byteOffset, bytes.length);
+  } else {
+    view = signature;
+  }
   const reader = new Reader(view);
 
   const magic = reader.readBytes(6).toString();
@@ -13,10 +21,10 @@ export function parse(view: DataView): Sig {
   if (version !== 1) {
     throw new Error(`Expected version 1 but got: ${version}`);
   }
+  const raw_publickey = reader.peekString().bytes();
   const publickey = reader.readString();
-
   const pk_algo = publickey.readString().toString();
-  const pubkey = parsePubkey(pk_algo, publickey);
+  const pubkey = parsePubkey(pk_algo, publickey, raw_publickey);
   const namespace = reader.readString().toString();
   const reserved = reader.readString().bytes();
   const hash_algorithm = reader.readString().toString();

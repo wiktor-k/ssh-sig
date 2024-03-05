@@ -7,22 +7,33 @@ export class Reader {
     return this.view.getUint8(this.pos++);
   }
   readUint32() {
-    const v = this.view.getUint32(this.pos);
+    const v = this.peekUint32();
     this.pos += 4;
     return v;
   }
-  readBytes(num: number) {
+  peekUint32() {
+    return this.view.getUint32(this.pos);
+  }
+  peekBytes(pos: number, num: number) {
     const dv = new DataView(
       this.view.buffer,
-      this.pos + this.view.byteOffset,
+      pos + this.view.byteOffset,
       num,
     );
-    this.pos += num;
     return new Reader(dv);
+  }
+  readBytes(num: number) {
+    const reader = this.peekBytes(this.pos, num);
+    this.pos += num;
+    return reader;
   }
   readString() {
     const len = this.readUint32();
     return this.readBytes(len);
+  }
+  peekString() {
+    const len = this.peekUint32();
+    return this.peekBytes(this.pos + 4, len);
   }
   toString() {
     let s = "";

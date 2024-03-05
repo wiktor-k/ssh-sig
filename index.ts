@@ -1,7 +1,6 @@
 import { Sig } from "./sig.ts";
 import { verify as rawVerify } from "./verifier.ts";
 import { parse } from "./sig_parser.ts";
-import { dearmor } from "./armor.ts";
 
 /**
  * Verifies SSH signature against provided data.
@@ -17,9 +16,7 @@ export async function verify(
   signed_data: Uint8Array | string,
 ): Promise<boolean> {
   if (typeof signature === "string") {
-    const bytes = dearmor(signature);
-    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.length);
-    signature = parse(view);
+    signature = parse(signature);
   }
   if (typeof signed_data === "string") {
     signed_data = new TextEncoder().encode(signed_data);

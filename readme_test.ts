@@ -1,5 +1,5 @@
 Deno.test(
-  { permissions: { read: true, write: true }, name: "readme.md" },
+  { permissions: { read: true, write: true }, name: "README.md" },
   async () => {
     const readme = await Deno.readTextFile("README.md");
     for (const block of readme.match(/```typescript[\s\S]*?```/gm) || "") {
@@ -11,7 +11,6 @@ Deno.test(
       const tmpFilePath = await Deno.makeTempFile({ suffix: ".ts", dir: "." });
 
       await Deno.writeTextFile(tmpFilePath, source);
-
       await import(tmpFilePath);
       await Deno.remove(tmpFilePath);
       //

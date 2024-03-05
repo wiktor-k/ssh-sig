@@ -4,27 +4,40 @@ export type Pubkey = {
   pk_algo: "ssh-rsa";
   e: Uint8Array;
   n: Uint8Array;
+  toString(): string;
 } | {
   pk_algo: "ssh-ed25519";
   key: Uint8Array;
+  toString(): string;
 } | {
   pk_algo: "ecdsa-sha2-nistp256";
   curve: string;
   point: Uint8Array;
+  toString(): string;
 };
 
-export function parsePubkey(pk_algo: string, publickey: Reader): Pubkey {
+export function parsePubkey(
+  pk_algo: string,
+  publickey: Reader,
+  raw_publickey: ArrayBuffer,
+): Pubkey {
   let pubkey: Pubkey;
   if (pk_algo === "ssh-rsa") {
     pubkey = {
       pk_algo,
       e: new Uint8Array(publickey.readString().bytes()),
       n: new Uint8Array(publickey.readString().bytes()),
+      toString() {
+        return `${pk_algo} ${base64Encode(new Uint8Array(raw_publickey))}`;
+      },
     };
   } else if (pk_algo === "ssh-ed25519") {
     pubkey = {
       pk_algo,
       key: new Uint8Array(publickey.readString().bytes()),
+      toString() {
+        return `${pk_algo} ${base64Encode(new Uint8Array(raw_publickey))}`;
+      },
     };
   } else if (pk_algo === "ecdsa-sha2-nistp256") {
     const curve = publickey.readString().toString();
@@ -32,6 +45,9 @@ export function parsePubkey(pk_algo: string, publickey: Reader): Pubkey {
       pk_algo,
       curve,
       point: new Uint8Array(publickey.readString().bytes()),
+      toString() {
+        return `${pk_algo} ${base64Encode(new Uint8Array(raw_publickey))}`;
+      },
     };
   } else {
     throw new Error(`Unsupported pk_algo: ${pk_algo}`);
@@ -39,8 +55,12 @@ export function parsePubkey(pk_algo: string, publickey: Reader): Pubkey {
   return pubkey;
 }
 
-function encode(bytes: Uint8Array) {
-  return btoa(String.fromCharCode.apply(null, bytes as unknown as number[]))
+function base64Encode(bytes: Uint8Array) {
+  return btoa(String.fromCharCode.apply(null, bytes as unknown as number[]));
+}
+
+function base64UrlEncode(bytes: Uint8Array) {
+  return base64Encode(bytes)
     .replace(
       /\+/g,
       "-",
@@ -58,8 +78,8 @@ export function convertPublicKey(publickey: Pubkey): {
     return {
       keyData: {
         kty: "RSA",
-        e: encode(publickey.e),
-        n: encode(publickey.n),
+        e: base64UrlEncode(publickey.e),
+        n: base64UrlEncode(publickey.n),
       },
       format: "jwk",
     };
@@ -77,8 +97,8 @@ export function convertPublicKey(publickey: Pubkey): {
       keyData: {
         kty: "EC",
         crv: "P-256",
-        x: encode(publickey.point.slice(1, 33)),
-        y: encode(publickey.point.slice(33)),
+        x: base64UrlEncode(publickey.point.slice(1, 33)),
+        y: base64UrlEncode(publickey.point.slice(33)),
       },
       format: "jwk",
     };
