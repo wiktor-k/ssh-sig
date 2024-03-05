@@ -1,4 +1,4 @@
-import { Reader } from './reader.ts';
+import { Reader } from "./reader.ts";
 
 export type Pubkey = {
   pk_algo: "ssh-rsa";
