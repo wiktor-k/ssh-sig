@@ -12,7 +12,6 @@ for await (const entry of Deno.readDir("fixtures")) {
         );
         assertEquals(
           await verify(
-            crypto.subtle,
             signature,
             await Deno.readTextFile(
               `fixtures/${entry.name.replace(/\.sig$/, "")}`,

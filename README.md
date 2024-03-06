@@ -56,9 +56,11 @@ dnvxJddvs2Z/x5En43hQIB
 -----END SSH SIGNATURE-----`;
 
 const valid = await verify(
-  crypto.subtle, // bring your own SubtleCrypto
   signature, // detached signature
   "this is signed data\n", // signed data
+  {
+    subtle: crypto.subtle, // bring your own SubtleCrypto
+  },
 );
 
 assertEquals(valid, true, "signature is valid");
@@ -80,9 +82,9 @@ dnvxJddvs2Z/x5En43hQIB
 -----END SSH SIGNATURE-----`);
 
 const valid = await verify(
-  crypto.subtle, // bring your own SubtleCrypto
   signature, // detached signature
   "this is signed data\n", // signed data
+  // using "crypto.subtle" by default
 );
 
 assertEquals(valid, true, "signature is valid");
