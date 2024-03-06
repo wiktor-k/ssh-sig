@@ -1,6 +1,6 @@
 {
   "name": "sshsig",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Provides SSH signature parser and verifier for SSH file signatures.",
   "scripts": {
     "test": "deno test --allow-read",
