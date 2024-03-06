@@ -18,6 +18,7 @@ for await (const entry of Deno.readDir("fixtures")) {
             ),
           ),
           true,
+          "signature verification should succeed",
         );
         const allowedSigners = await Deno.makeTempFile();
 

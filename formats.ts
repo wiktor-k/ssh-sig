@@ -10,7 +10,7 @@ export type Pubkey = {
   key: Uint8Array;
   toString(): string;
 } | {
-  pk_algo: "ecdsa-sha2-nistp256";
+  pk_algo: "ecdsa-sha2-nistp256" | "ecdsa-sha2-nistp384";
   curve: string;
   point: Uint8Array;
   toString(): string;
@@ -39,7 +39,9 @@ export function parsePubkey(
         return `${pk_algo} ${base64Encode(new Uint8Array(raw_publickey))}`;
       },
     };
-  } else if (pk_algo === "ecdsa-sha2-nistp256") {
+  } else if (
+    pk_algo === "ecdsa-sha2-nistp256" || pk_algo === "ecdsa-sha2-nistp384"
+  ) {
     const curve = publickey.readString().toString();
     pubkey = {
       pk_algo,
@@ -88,17 +90,27 @@ export function convertPublicKey(publickey: Pubkey): {
       keyData: publickey.key.buffer,
       format: "raw",
     };
-  } else if (pk_algo === "ecdsa-sha2-nistp256") {
+  } else if (
+    pk_algo === "ecdsa-sha2-nistp256" || pk_algo === "ecdsa-sha2-nistp384"
+  ) {
     if (publickey.point[0] !== 0x04) {
       throw new Error("Only uncompressed (0x04) format is supported");
     }
 
+    const point = publickey.point.slice(1);
+
+    let crv;
+    if (pk_algo === "ecdsa-sha2-nistp256") {
+      crv = "P-256";
+    } else {
+      crv = "P-384";
+    }
     return {
       keyData: {
         kty: "EC",
-        crv: "P-256",
-        x: base64UrlEncode(publickey.point.slice(1, 33)),
-        y: base64UrlEncode(publickey.point.slice(33)),
+        crv,
+        x: base64UrlEncode(point.slice(0, point.length / 2)),
+        y: base64UrlEncode(point.slice(point.length / 2)),
       },
       format: "jwk",
     };
@@ -123,6 +135,12 @@ export function convertAlgorithm(sig_algo: string) {
       name: "ECDSA",
       namedCurve: "P-256",
       hash: { name: "SHA-256" },
+    };
+  } else if (sig_algo === "ecdsa-sha2-nistp384") {
+    return {
+      name: "ECDSA",
+      namedCurve: "P-384",
+      hash: { name: "SHA-384" },
     };
   } else {
     throw new Error(`Unsupported algo: ${sig_algo}`);
