@@ -1,11 +1,18 @@
 import { assertEquals } from "https://deno.land/std@0.217.0/assert/mod.ts";
+import { existsSync } from "https://deno.land/std@0.217.0/fs/mod.ts";
 import { verify } from "./index.ts";
 import { parse } from "./sig_parser.ts";
 
 for await (const entry of Deno.readDir("fixtures")) {
   if (entry.name.endsWith(".sig")) {
     Deno.test(
-      { permissions: { read: true, write: true, run: true }, name: entry.name },
+      {
+        permissions: { read: true, write: true, run: true },
+        ignore: existsSync(
+          `fixtures/${entry.name.replace(/\.sig$/, ".ignore")}`,
+        ),
+        name: entry.name,
+      },
       async () => {
         const signature = parse(
           await Deno.readTextFile(`fixtures/${entry.name}`),

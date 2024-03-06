@@ -1,0 +1,2 @@
+Deno doesn't support P-521 due to their underlying crypto lib not supporting it.
+See: https://github.com/denoland/deno/issues/13449#issuecomment-1879050683

@@ -33,7 +33,8 @@ export function parse(signature: DataView | string): Sig {
   const sig_bytes = raw_signature.readString();
   let bytes;
   if (
-    sig_algo === "ecdsa-sha2-nistp256" || sig_algo === "ecdsa-sha2-nistp384"
+    sig_algo === "ecdsa-sha2-nistp256" || sig_algo === "ecdsa-sha2-nistp384" ||
+    sig_algo === "ecdsa-sha2-nistp512"
   ) {
     let r = new Uint8Array(sig_bytes.readString().bytes());
     if (r[0] === 0x00 && r.length % 2 == 1) {
