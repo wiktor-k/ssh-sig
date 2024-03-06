@@ -2,6 +2,12 @@
   "name": "sshsig",
   "version": "0.2.0",
   "description": "Provides SSH signature parser and verifier for SSH file signatures.",
+  "homepage": "https://github.com/wiktor-k/ssh-sig#ssh-sig",
+  "bugs": {
+    "url": "https://github.com/wiktor-k/ssh-sig/issues"
+  },
+  "keywords": ["ssh", "signatures", "public"],
+  "repository": "gitlab:wiktor-k/ssh-sig",
   "scripts": {
     "test": "deno test --allow-read",
     "build": "tsup index.ts --format cjs,esm --dts",
