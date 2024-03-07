@@ -8,5 +8,7 @@ export interface Sig {
   signature: {
     sig_algo: string;
     raw_signature: ArrayBuffer;
+    flags?: number;
+    counter?: number;
   };
 }

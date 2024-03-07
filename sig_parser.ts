@@ -34,7 +34,8 @@ export function parse(signature: DataView | string): Sig {
   let bytes;
   if (
     sig_algo === "ecdsa-sha2-nistp256" || sig_algo === "ecdsa-sha2-nistp384" ||
-    sig_algo === "ecdsa-sha2-nistp512"
+    sig_algo === "ecdsa-sha2-nistp512" ||
+    sig_algo === "sk-ecdsa-sha2-nistp256@openssh.com"
   ) {
     let r = new Uint8Array(sig_bytes.readString().bytes());
     if (r[0] === 0x00 && r.length % 2 == 1) {
@@ -48,6 +49,11 @@ export function parse(signature: DataView | string): Sig {
   } else {
     bytes = sig_bytes.bytes();
   }
+  let flags, counter;
+  if (sig_algo === "sk-ecdsa-sha2-nistp256@openssh.com") {
+    flags = new Uint8Array(raw_signature.readBytes(1).bytes())[0];
+    counter = raw_signature.readUint32();
+  }
   return {
     publickey: pubkey,
     namespace,
@@ -56,6 +62,8 @@ export function parse(signature: DataView | string): Sig {
     signature: {
       sig_algo,
       raw_signature: bytes,
+      flags,
+      counter,
     },
   };
 }

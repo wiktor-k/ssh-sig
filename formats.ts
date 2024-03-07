@@ -17,6 +17,13 @@ export type Pubkey = {
   curve: string;
   point: Uint8Array;
   toString(): string;
+} | {
+  pk_algo: "sk-ecdsa-sha2-nistp256@openssh.com";
+  curve: string;
+  point: Uint8Array;
+  // typically "ssh:"
+  application: string;
+  toString(): string;
 };
 
 export function parsePubkey(
@@ -47,10 +54,24 @@ export function parsePubkey(
     pk_algo === "ecdsa-sha2-nistp521"
   ) {
     const curve = publickey.readString().toString();
+    const point = new Uint8Array(publickey.readString().bytes());
     pubkey = {
       pk_algo,
       curve,
-      point: new Uint8Array(publickey.readString().bytes()),
+      point,
+      toString() {
+        return `${pk_algo} ${base64Encode(new Uint8Array(raw_publickey))}`;
+      },
+    };
+  } else if (pk_algo === "sk-ecdsa-sha2-nistp256@openssh.com") {
+    const curve = publickey.readString().toString();
+    const point = new Uint8Array(publickey.readString().bytes());
+    const application = publickey.readString().toString();
+    pubkey = {
+      pk_algo,
+      curve,
+      point,
+      application,
       toString() {
         return `${pk_algo} ${base64Encode(new Uint8Array(raw_publickey))}`;
       },
@@ -96,7 +117,8 @@ export function convertPublicKey(publickey: Pubkey): {
     };
   } else if (
     pk_algo === "ecdsa-sha2-nistp256" || pk_algo === "ecdsa-sha2-nistp384" ||
-    pk_algo === "ecdsa-sha2-nistp521"
+    pk_algo === "ecdsa-sha2-nistp521" ||
+    pk_algo === "sk-ecdsa-sha2-nistp256@openssh.com"
   ) {
     if (publickey.point[0] !== 0x04) {
       throw new Error("Only uncompressed (0x04) format is supported");
@@ -105,7 +127,10 @@ export function convertPublicKey(publickey: Pubkey): {
     const point = publickey.point.slice(1);
 
     let crv;
-    if (pk_algo === "ecdsa-sha2-nistp256") {
+    if (
+      pk_algo === "ecdsa-sha2-nistp256" ||
+      pk_algo === "sk-ecdsa-sha2-nistp256@openssh.com"
+    ) {
       crv = "P-256";
     } else if (pk_algo === "ecdsa-sha2-nistp384") {
       crv = "P-384";
@@ -138,7 +163,10 @@ export function convertAlgorithm(sig_algo: string) {
       name: "Ed25519",
       hash: { name: "SHA-512" },
     };
-  } else if (sig_algo === "ecdsa-sha2-nistp256") {
+  } else if (
+    sig_algo === "ecdsa-sha2-nistp256" ||
+    sig_algo === "sk-ecdsa-sha2-nistp256@openssh.com"
+  ) {
     return {
       name: "ECDSA",
       namedCurve: "P-256",

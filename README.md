@@ -35,6 +35,7 @@ The following algorithms are supported at this time:
 - RSA
 - ed25519
 - NIST P-256 and P-384
+- SSH U2F signatures (ECDSA)
 
 If you would like to see a different signing algorithm supported please
 [file an issue](https://github.com/wiktor-k/ssh-sig/issues/new) attaching both

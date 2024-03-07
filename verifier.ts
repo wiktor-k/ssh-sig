@@ -40,6 +40,41 @@ export async function verify(
   );
   data.push(...[0, 0, 0, digest.length]);
   data.push(...digest);
+
+  if (signature.publickey.pk_algo === "sk-ecdsa-sha2-nistp256@openssh.com") {
+    // https://fuchsia.googlesource.com/third_party/openssh-portable/+/refs/heads/main/PROTOCOL.u2f#176
+    const u2f_data = [];
+    u2f_data.push(
+      ...new Uint8Array(
+        await subtle.digest(
+          "SHA-256",
+          Uint8Array.from(
+            Array.prototype.map.call(
+              signature.publickey.application,
+              (x) => x.charCodeAt(0),
+            ) as unknown as number[],
+          ),
+        ),
+      ),
+    );
+    u2f_data.push(signature.signature.flags);
+    u2f_data.push(...[0, 0, 0, signature.signature.counter]);
+    u2f_data.push(
+      ...new Uint8Array(
+        await subtle.digest(
+          "SHA-256",
+          Uint8Array.from(data as unknown as number[]),
+        ),
+      ),
+    );
+    return await subtle.verify(
+      algorithm,
+      key,
+      signature.signature.raw_signature,
+      new Uint8Array(u2f_data as unknown as number[]),
+    );
+  }
+
   return await subtle.verify(
     algorithm,
     key,
