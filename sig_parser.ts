@@ -50,7 +50,10 @@ export function parse(signature: DataView | string): Sig {
     bytes = sig_bytes.bytes();
   }
   let flags, counter;
-  if (sig_algo === "sk-ecdsa-sha2-nistp256@openssh.com") {
+  if (
+    sig_algo === "sk-ecdsa-sha2-nistp256@openssh.com" ||
+    sig_algo == "sk-ssh-ed25519@openssh.com"
+  ) {
     flags = new Uint8Array(raw_signature.readBytes(1).bytes())[0];
     counter = raw_signature.readUint32();
   }

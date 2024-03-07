@@ -24,6 +24,12 @@ export type Pubkey = {
   // typically "ssh:"
   application: string;
   toString(): string;
+} | {
+  pk_algo: "sk-ssh-ed25519@openssh.com";
+  key: Uint8Array;
+  // typically "ssh:"
+  application: string;
+  toString(): string;
 };
 
 export function parsePubkey(
@@ -45,6 +51,17 @@ export function parsePubkey(
     pubkey = {
       pk_algo,
       key: new Uint8Array(publickey.readString().bytes()),
+      toString() {
+        return `${pk_algo} ${base64Encode(new Uint8Array(raw_publickey))}`;
+      },
+    };
+  } else if (pk_algo === "sk-ssh-ed25519@openssh.com") {
+    const key = new Uint8Array(publickey.readString().bytes());
+    const application = publickey.readString().toString();
+    pubkey = {
+      pk_algo,
+      key,
+      application,
       toString() {
         return `${pk_algo} ${base64Encode(new Uint8Array(raw_publickey))}`;
       },
@@ -110,7 +127,9 @@ export function convertPublicKey(publickey: Pubkey): {
       },
       format: "jwk",
     };
-  } else if (pk_algo === "ssh-ed25519") {
+  } else if (
+    pk_algo === "ssh-ed25519" || pk_algo === "sk-ssh-ed25519@openssh.com"
+  ) {
     return {
       keyData: publickey.key.buffer,
       format: "raw",
@@ -158,7 +177,9 @@ export function convertAlgorithm(sig_algo: string) {
       name: "RSASSA-PKCS1-v1_5",
       hash: { name: "SHA-512" },
     };
-  } else if (sig_algo === "ssh-ed25519") {
+  } else if (
+    sig_algo === "ssh-ed25519" || sig_algo === "sk-ssh-ed25519@openssh.com"
+  ) {
     return {
       name: "Ed25519",
       hash: { name: "SHA-512" },

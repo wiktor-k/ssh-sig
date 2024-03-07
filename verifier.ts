@@ -41,7 +41,10 @@ export async function verify(
   data.push(...[0, 0, 0, digest.length]);
   data.push(...digest);
 
-  if (signature.publickey.pk_algo === "sk-ecdsa-sha2-nistp256@openssh.com") {
+  if (
+    signature.publickey.pk_algo === "sk-ecdsa-sha2-nistp256@openssh.com" ||
+    signature.publickey.pk_algo === "sk-ssh-ed25519@openssh.com"
+  ) {
     // https://fuchsia.googlesource.com/third_party/openssh-portable/+/refs/heads/main/PROTOCOL.u2f#176
     const u2f_data = [];
     u2f_data.push(
