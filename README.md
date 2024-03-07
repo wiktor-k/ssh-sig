@@ -42,7 +42,12 @@ in Dino)
 
 [^2]: Requires support for P-521 (not available in Dino, so not tested)
 
-If you would like to see a different signing algorithm supported please
+Which represents almost all
+[available algorithms](https://man.archlinux.org/man/ssh-keygen.1#t) with the
+exception of DSA which is unsupported by WebCrypto and obsolete.
+
+If you encounter a problem verifying signatures with combinations of digests
+that we do not have in our testing suite, please
 [file an issue](https://github.com/wiktor-k/ssh-sig/issues/new) attaching both
 the SSH signature and the file that was signed.
 
