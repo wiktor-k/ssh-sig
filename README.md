@@ -33,9 +33,14 @@ This will create a detached signature in the `file_to_sign.sig` file.
 The following algorithms are supported at this time:
 
 - RSA
-- ed25519
-- NIST P-256 and P-384
-- SSH U2F signatures (ECDSA and ed25519)
+- ed25519[^1]
+- NIST P-256, P-384 and P-521[^2]
+- SSH U2F signatures (ECDSA and ed25519[^1])
+
+[^1]: Requires support for Ed25519 algorithms (experimental in browsers, working
+in Dino)
+
+[^2]: Requires support for P-521 (not available in Dino, so not tested)
 
 If you would like to see a different signing algorithm supported please
 [file an issue](https://github.com/wiktor-k/ssh-sig/issues/new) attaching both
