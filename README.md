@@ -38,9 +38,9 @@ The following algorithms are supported at this time:
 - SSH U2F signatures (ECDSA and ed25519[^1])
 
 [^1]: Requires support for Ed25519 algorithms (experimental in browsers, working
-in Dino)
+in Deno)
 
-[^2]: Requires support for P-521 (not available in Dino, so not tested)
+[^2]: Requires support for P-521 (not available in Deno, so not tested)
 
 Which represents almost all
 [available algorithms](https://man.archlinux.org/man/ssh-keygen.1#t) with the
