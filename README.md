@@ -2,18 +2,18 @@
 
 [![CI](https://github.com/wiktor-k/ssh-browser-test/actions/workflows/ci.yml/badge.svg)](https://github.com/wiktor-k/ssh-browser-test/actions/workflows/ci.yml)
 
-Provides SSH signature parser and verifier for
+Provides an SSH signature parser and verifier for
 [SSH file signatures](https://www.agwa.name/blog/post/ssh_signatures).
 
 SSH signatures allow signing arbitrary files and can be used for
 [signing git commits and tags](https://blog.dbrgn.ch/2021/11/16/git-ssh-signatures/).
 
-All features are implemented using pure TypeScript and built-in
+All features are implemented using pure TypeScript and the built-in
 [SubtleCrypto](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto).
 
-Since [`Ed25519` public keys](https://wicg.github.io/webcrypto-secure-curves/)
+Since [`ed25519` public keys](https://wicg.github.io/webcrypto-secure-curves/)
 are
-[not yet widely deployed](https://caniuse.com/mdn-api_subtlecrypto_verify_ed25519)
+[not yet widely deployed](https://caniuse.com/mdn-api_subtlecrypto_verify_ed25519),
 this package allows supplying custom `SubtleCrypto` implementation, such as
 [`webcrypto-ed25519`](https://github.com/jacobbubu/webcrypto-ed25519).
 
@@ -42,9 +42,9 @@ in Deno)
 
 [^2]: Requires support for P-521 (not available in Deno, so not tested)
 
-Which represents almost all
+This represents almost all
 [available algorithms](https://man.archlinux.org/man/ssh-keygen.1#t) with the
-exception of DSA which is unsupported by WebCrypto and obsolete.
+exception of DSA, which is unsupported by WebCrypto and obsolete.
 
 If you encounter a problem verifying signatures with combinations of digests
 that we do not have in our testing suite, please
@@ -77,8 +77,8 @@ const valid = await verify(
 assertEquals(valid, true, "signature is valid");
 ```
 
-Signatures can also be parsed before verification. Since signatures contain
-public keys it's also possible to export the public key in the SSH format:
+Signatures can also be parsed before verification. As signatures contain public
+keys it is also possible to export the public key in the SSH format:
 
 ```typescript
 import { assertEquals } from "https://deno.land/std@0.217.0/assert/mod.ts";
