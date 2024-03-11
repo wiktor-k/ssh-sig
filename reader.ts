@@ -1,5 +1,5 @@
 export class Reader {
-  pos = 0;
+  private pos = 0;
   constructor(private view: DataView) {
     this.view = view;
   }

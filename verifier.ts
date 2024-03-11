@@ -1,5 +1,6 @@
 import { Sig } from "./sig.ts";
 import { convertAlgorithm, convertHash, convertPublicKey } from "./formats.ts";
+import { Writer } from "./writer.ts";
 
 export async function verify(
   subtle: SubtleCrypto,
@@ -20,61 +21,58 @@ export async function verify(
       "verify",
     ],
   );
+
+  const writer = new Writer(100);
   // https://github.com/openssh/openssh-portable/blob/d575cf44895104e0fcb0629920fb645207218129/PROTOCOL.sshsig
   // MAGIC_PREAMBLE
-  const data = Array.prototype.map.call("SSHSIG", (x) => x.charCodeAt(0));
+  writer.writeBytes("SSHSIG");
   // namespace
-  data.push(...[0, 0, 0, 4]);
-  data.push(...Array.prototype.map.call("file", (x) => x.charCodeAt(0)));
+  writer.writeString("file");
   // reserved
-  data.push(...[0, 0, 0, 0]);
+  writer.writeUint32(0);
   // hash_algorithm
   const hash = signature.hash_algorithm;
-  data.push(...[0, 0, 0, hash.length]);
-  data.push(...Array.prototype.map.call(hash, (x) => x.charCodeAt(0)));
+  writer.writeString(hash);
   const digest = new Uint8Array(
     await subtle.digest(
       convertHash(hash),
       signed_data,
     ),
   );
-  data.push(...[0, 0, 0, digest.length]);
-  data.push(...digest);
+  writer.writeString(digest);
+
+  const data = writer.bytes();
 
   if (
     signature.publickey.pk_algo === "sk-ecdsa-sha2-nistp256@openssh.com" ||
     signature.publickey.pk_algo === "sk-ssh-ed25519@openssh.com"
   ) {
     // https://fuchsia.googlesource.com/third_party/openssh-portable/+/refs/heads/main/PROTOCOL.u2f#176
-    const u2f_data = [];
-    u2f_data.push(
-      ...new Uint8Array(
-        await subtle.digest(
-          "SHA-256",
-          Uint8Array.from(
-            Array.prototype.map.call(
-              signature.publickey.application,
-              (x) => x.charCodeAt(0),
-            ) as unknown as number[],
-          ),
+    const u2f_data = new Writer(100);
+    u2f_data.writeBytes(
+      await subtle.digest(
+        "SHA-256",
+        Uint8Array.from(
+          Array.prototype.map.call(
+            signature.publickey.application,
+            (x) => x.charCodeAt(0),
+          ) as unknown as number[],
         ),
       ),
     );
-    u2f_data.push(signature.signature.flags);
-    u2f_data.push(...[0, 0, 0, signature.signature.counter]);
-    u2f_data.push(
-      ...new Uint8Array(
-        await subtle.digest(
-          "SHA-256",
-          Uint8Array.from(data as unknown as number[]),
-        ),
+    u2f_data.writeByte(signature.signature.flags || 0);
+    u2f_data.writeUint32(signature.signature.counter || 0);
+    u2f_data.writeBytes(
+      await subtle.digest(
+        "SHA-256",
+        data,
       ),
     );
     return await subtle.verify(
       algorithm,
       key,
       signature.signature.raw_signature,
-      new Uint8Array(u2f_data as unknown as number[]),
+      u2f_data.bytes(),
     );
   }
 
@@ -82,6 +80,6 @@ export async function verify(
     algorithm,
     key,
     signature.signature.raw_signature,
-    new Uint8Array(data as unknown as number[]),
+    data,
   );
 }
