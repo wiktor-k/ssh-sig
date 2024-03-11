@@ -57,6 +57,11 @@ export function parse(signature: DataView | string): Sig {
     flags = new Uint8Array(raw_signature.readBytes(1).bytes())[0];
     counter = raw_signature.readUint32();
   }
+  if (!reader.isAtEnd) {
+    throw new Error(
+      "Signature was parsed but there were still bytes in the stream.",
+    );
+  }
   return {
     publickey: pubkey,
     namespace,

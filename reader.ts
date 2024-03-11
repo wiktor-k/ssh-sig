@@ -48,4 +48,7 @@ export class Reader {
       this.view.byteOffset + this.view.byteLength,
     );
   }
+  get isAtEnd() {
+    return this.pos == this.view.byteLength;
+  }
 }
