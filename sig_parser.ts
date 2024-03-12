@@ -3,6 +3,13 @@ import { Reader } from "./reader.ts";
 import { parsePubkey } from "./formats.ts";
 import { dearmor } from "./armor.ts";
 
+/**
+ * Parse bytes into an SSH signature object.
+ *
+ * This function throws an Error when the signature is invalid or unsupported.
+ *
+ * @param {DataView | string} signature Raw bytes to parse.
+ */
 export function parse(signature: DataView | string): Sig {
   let view;
   if (typeof signature === "string") {

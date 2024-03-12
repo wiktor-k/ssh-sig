@@ -1,5 +1,8 @@
 import { Reader } from "./reader.ts";
 
+/**
+ * Represents an SSH public key.
+ */
 export type Pubkey = {
   pk_algo: "ssh-rsa";
   e: Uint8Array;

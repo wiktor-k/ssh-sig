@@ -1,5 +1,8 @@
 import { Pubkey } from "./formats.ts";
 
+/**
+ * Represents a parsed SSH signature.
+ */
 export interface Sig {
   publickey: Pubkey;
   namespace: string;

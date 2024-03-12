@@ -1,3 +1,8 @@
+/**
+ * Byte stream reader helper.
+ *
+ * This class exposes several helper functions for reading SSH structured data.
+ */
 export class Reader {
   private pos = 0;
   constructor(private view: DataView) {

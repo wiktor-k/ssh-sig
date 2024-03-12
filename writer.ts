@@ -1,3 +1,8 @@
+/**
+ * Byte stream writer helper.
+ *
+ * This class exposes several helper functions for writing bytes into a buffer.
+ */
 export class Writer {
   private pos = 0;
   private buffer: ArrayBuffer;
