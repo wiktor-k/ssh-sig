@@ -6,8 +6,15 @@
   "bugs": {
     "url": "https://github.com/wiktor-k/ssh-sig/issues"
   },
-  "keywords": ["ssh", "signatures", "public"],
-  "repository": "github:wiktor-k/ssh-sig",
+  "keywords": [
+    "ssh",
+    "signatures",
+    "public"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wiktor-k/ssh-sig.git"
+  },
   "scripts": {
     "test": "deno test --allow-read",
     "build": "tsup index.ts --format cjs,esm --dts",
