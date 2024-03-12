@@ -5,6 +5,8 @@ import { parse } from "./sig_parser.ts";
 /**
  * Verifies SSH signature against provided data.
  *
+ * Returns `true` if the `signature` is a valid signature over `signed_data`, `false` otherwise.
+ *
  * @param {Sig | string} signature SSH signature.
  * @param {Uint8Array | string} signed_data Data that has been signed.
  * @param {object} options Pass-in subtle crypto if required.
