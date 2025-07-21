@@ -38,7 +38,7 @@ The following algorithms are supported at this time:
 - SSH U2F signatures (ECDSA and ed25519[^1])
 
 [^1]: Requires support for Ed25519 algorithms (experimental in browsers, working
-in Deno)
+    in Deno)
 
 [^2]: Requires support for P-521 (not available in Deno, so not tested)
 
